@@ -1,0 +1,78 @@
+services:
+  pgbouncer:
+    image: brainsam/pgbouncer:latest
+    env_file:
+      - ./config.env
+    networks:
+      - app_net
+    expose:
+      - "5432"
+    environment:
+      - LISTEN_PORT=5432
+      - POOL_MODE=session
+  db:
+    image: postgres:14.1-alpine
+    env_file:
+      - ./config.env
+    volumes:
+      - db-data:/pgdata
+    networks:
+      - app_net
+    ports:
+      - "5432:5432"
+#  webapp:
+#    image: "${DOCKER_REPO}:${CI_COMMIT_BRANCH} "
+#    command: python manage.py runserver 0.0.0.0:8000
+#    volumes:
+#      - .:/srv/project
+#    ports:
+#      - "8000:8000"
+#    env_file:
+#      - ./config.env
+#    networks:
+#      - app_net
+  rabbitmq:
+    image: rabbitmq:3-alpine
+    hostname: rabbitmq-app
+    env_file:
+      - ./config.env
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "1"
+    networks:
+      - app_net
+  redis:
+    image: redis:alpine
+    hostname: redis-app
+    command: redis-server --save "" --stop-writes-on-bgsave-error no --maxmemory 1000000000 --maxmemory-policy allkeys-lfu --replica-read-only no
+    ports:
+      - "6379:6379"
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "1"
+    networks:
+      - app_net
+  celery:
+    build: .
+#    image: "${DOCKER_REPO}:${CI_COMMIT_BRANCH} "
+    command: celery -A project worker -c 1 -l debug -Q long-celery,celery
+    volumes:
+      - .:/srv/project
+    env_file:
+      - ./config.env
+    environment:
+      - CONTAINER_TYPE=celery
+      - C_FORCE_ROOT=true
+    logging:
+      options:
+        max-size: "25m"
+        max-file: "5"
+    networks:
+      - app_net
+networks:
+  app_net:
+    driver: bridge
+volumes:
+  db-data:
