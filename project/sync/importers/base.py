@@ -21,7 +21,7 @@ class BaseImporter(metaclass=abc.ABCMeta):
         self.service = SyncService()
         self.processed = set()
         self.items_batch = []
-        self.existing_items = set(self.model.objects.all().values_list(self.sync_by, flat=True))
+        self.existing_items = {item[self.sync_by]: item["id"] for item in self.model.objects.all().values(self.sync_by, "id")}
 
     @abc.abstractmethod
     def map_item(self, item):
@@ -60,11 +60,13 @@ class BaseImporter(metaclass=abc.ABCMeta):
             obj = self.model(**data)
             sync_by_field = data.get(self.sync_by)
 
-            if sync_by_field in self.existing_items:
-                update_objs.append(obj)
+            if sync_by_field in self.existing_items.keys():
+                if primary_key := self.existing_items[sync_by_field]:
+                    obj.id = primary_key
+                    update_objs.append(obj)
             else:
                 create_objs.append(obj)
-                self.existing_items.add(sync_by_field)
+                self.existing_items[sync_by_field] = None
 
         with transaction.atomic():
             if create_objs:
@@ -75,7 +77,7 @@ class BaseImporter(metaclass=abc.ABCMeta):
                 if update_fields == "__all__":
                     update_fields = list(update_objs[0].__dict__.keys())
                     update_fields = [
-                        f for f in update_fields if f not in ("_state", self.sync_by)
+                        f for f in update_fields if f not in ("_state", self.sync_by, "id")
                     ]
 
                 self.model.objects.bulk_update(update_objs, update_fields, batch_size=self.batch_size)
