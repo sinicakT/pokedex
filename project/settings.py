@@ -39,6 +39,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     "project.pokemon",
+    "project.sync",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -148,3 +149,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 POKE_API = {
     "url": "https://pokeapi.co/api/v2"
 }
+
+BROKER_URL = CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER_URL", "redis://redis-app:6379/0"
+)

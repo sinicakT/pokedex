@@ -3,7 +3,6 @@ from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
 from django.core.cache import cache
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 
 app = Celery("project_celery")
@@ -26,3 +25,4 @@ app.conf.ONCE = {
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
+__all__ = ("app",)

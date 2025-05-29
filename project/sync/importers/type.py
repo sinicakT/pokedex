@@ -13,5 +13,11 @@ class TypeImporter(BaseImporter):
     def map_item(self, item):
         return {
             "name": item["name"],
-            "external_id": link_to_external_id(item["url"])
+            "external_id": item["id"],
+            "double_dmg_to": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("double_damage_from", [])],
+            "double_dmg_from": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("double_damage_to", [])],
+            "half_dmg_from": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("half_damage_from", [])],
+            "half_dmg_to": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("half_damage_to", [])],
+            "no_dmg_from": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("no_damage_from", [])],
+            "no_dmg_to": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("no_damage_to", [])],
         }

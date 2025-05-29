@@ -57,7 +57,7 @@ services:
   celery:
     build: .
 #    image: "${DOCKER_REPO}:${CI_COMMIT_BRANCH} "
-    command: celery -A project worker -c 1 -l debug -Q long-celery,celery
+    command: celery -A project.celery worker --loglevel=info
     volumes:
       - .:/srv/project
     env_file:
@@ -71,6 +71,22 @@ services:
         max-file: "5"
     networks:
       - app_net
+
+  celery-beat:
+    build: .
+    command: celery -A project.celery beat --loglevel=info
+    volumes:
+      - .:/srv/project
+    env_file:
+      - ./config.env
+    environment:
+      - CONTAINER_TYPE=celery-beat
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - app_net
+
 networks:
   app_net:
     driver: bridge

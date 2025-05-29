@@ -1,12 +1,16 @@
+import logging
+
 from project.sync.helpers import PokeApiHelper
 from project.sync.utils import link_to_external_id
+
+logger = logging.getLogger(__name__)
 
 
 class SyncService:
     def __init__(self):
         self.helper = PokeApiHelper()
 
-    def get_items(self, endpoint, with_detail=False, batch_size=250):
+    def get_items(self, endpoint, batch_size=250):
         if endpoint not in self.helper.AVAILABLE_ENDPOINTS:
             raise ValueError(f"Unsupported endpoint: {endpoint}")
 
@@ -27,9 +31,13 @@ class SyncService:
                 total = data.get("count", 0)
 
             for item in results:
-                if with_detail and detail_func:
-                    item_id = link_to_external_id(item["url"])
-                    yield detail_func(item_id)
+                if detail_func:
+                    try:
+                        item_id = link_to_external_id(item["url"])
+                        yield detail_func(item_id)
+                    except Exception as e:
+                        logger.warning(f"Failed to fetch detail for item {item.get('name')} ({item.get('url')}): {e}")
+                        continue
                 else:
                     yield item
 
