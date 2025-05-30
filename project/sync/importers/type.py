@@ -20,4 +20,5 @@ class TypeImporter(BaseImporter):
             "half_dmg_to": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("half_damage_to", [])],
             "no_dmg_from": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("no_damage_from", [])],
             "no_dmg_to": [link_to_external_id(i["url"]) for i in item.get("damage_relations", []).get("no_damage_to", [])],
+            "image": item.get("sprites", {}).get("generation-iii", {}).get("colosseum", {}).get("name_icon", None),
         }

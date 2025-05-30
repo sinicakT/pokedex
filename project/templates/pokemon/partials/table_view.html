@@ -1,0 +1,42 @@
+<div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow rounded-lg">
+        <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+        <tr>
+            <th class="py-3 px-6 text-left">Name</th>
+            <th class="py-3 px-6 text-left">Species</th>
+            <th class="py-3 px-6 text-left">Types</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for pokemon in pokemons %}
+            <tr class="border-b border-gray-200 hover:bg-gray-100">
+                <td class="py-3 px-6">
+                    <div class="flex items-center gap-3">
+                        {% if pokemon.image %}
+                            <img src="{{ pokemon.image }}" alt="{{ pokemon.name }}"
+                                 class="w-10 h-10 rounded-full">
+                        {% endif %}
+                        <span class="font-medium text-gray-800">{{ pokemon.name }}</span>
+                    </div>
+                </td>
+                <td class="py-3 px-6">
+                    {% if pokemon.species %}{{ pokemon.species.name }}{% else %}—{% endif %}
+                </td>
+                <td class="py-3 px-6">
+                    {% for type in pokemon.types.all %}
+                        {% if type.image %}
+                            <img src="{{ type.image }}" alt="{{ type.name }}"
+                                 title="{{ type.name }}"
+                                 class="w-12 object-contain rounded py-1">
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="py-3 px-6">No Pokemon found.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

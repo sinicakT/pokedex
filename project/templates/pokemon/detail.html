@@ -1,0 +1,72 @@
+{% extends "index.html" %}
+
+{% block title %}{{ pokemon.name }}{% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <div class="flex items-center space-x-6">
+            {% if pokemon.image %}
+                <img src="{{ pokemon.image }}" alt="{{ pokemon.name }}" class="w-32 h-32 object-contain">
+            {% endif %}
+            <div>
+                <h1 class="text-3xl font-bold capitalize">{{ pokemon.name }}</h1>
+                <p class="text-gray-600">#{{ pokemon.external_id }}</p>
+                <p class="text-sm text-gray-500">Base Experience: {{ pokemon.base_experience }}</p>
+                <p class="text-sm text-gray-500">Height: {{ pokemon.height }}, Weight: {{ pokemon.weight }}</p>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <div class="flex space-x-2">
+                {% for type in pokemon.types %}
+                    <div class="flex items-center space-x-1 px-2 py-1 rounded">
+                        {% if type.image %}
+                            <img src="{{ type.image }}" class="w-14 object-contain rounded" alt="{{ type.name }}">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-2">Abilities</h2>
+            <ul class="list-disc list-inside text-gray-700">
+                {% for ability in pokemon.abilities %}
+                    <li class="capitalize">{{ ability.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-2">Stats</h2>
+            <div class="grid grid-cols-2 gap-4">
+                {% for stat in pokemon.stats %}
+                    <div class="bg-gray-100 p-3 rounded">
+                        <div class="text-gray-800 font-semibold capitalize">{{ stat.stat.name }}</div>
+                        <div class="text-sm text-gray-600">Base: {{ stat.base_stat }} | Effort: {{ stat.effort }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-2">Types</h2>
+            <div class="grid grid-cols-2 gap-4">
+                {% for type in pokemon.types %}
+                    <div class="bg-blue-50 p-4 rounded shadow mb-4">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="text-lg font-bold capitalize">{{ type.name }}</span>
+                        </div>
+                        {% include "pokemon/partials/type_attr.html" with title="Double damage to" values=type.double_dmg_to %}
+                        {% include "pokemon/partials/type_attr.html" with title="Double damage from" values=type.double_dmg_from %}
+                        {% include "pokemon/partials/type_attr.html" with title="Half damage to" values=type.half_dmg_from %}
+                        {% include "pokemon/partials/type_attr.html" with title="Half damage from" values=type.half_dmg_to %}
+                        {% include "pokemon/partials/type_attr.html" with title="No damage to" values=type.no_dmg_to %}
+                        {% include "pokemon/partials/type_attr.html" with title="No damage from" values=type.no_dmg_from %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

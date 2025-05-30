@@ -42,17 +42,12 @@ class Type(BaseModel):
     half_dmg_to = ArrayField(models.IntegerField(), default=list, blank=True)
     no_dmg_from = ArrayField(models.IntegerField(), default=list, blank=True)
     no_dmg_to = ArrayField(models.IntegerField(), default=list, blank=True)
+    image = models.URLField("Image url", default=None, null=True)
 
     class Meta:
         app_label = "pokemon"
         verbose_name = "Type"
         verbose_name_plural = "Types"
-
-class MoveBattleStyle(BaseModel):
-    class Meta:
-        app_label = "pokemon"
-        verbose_name = "Move Battle Style"
-        verbose_name_plural = "Move Battle Styles"
 
 class Pokemon(models.Model):
     name = models.CharField("Name", max_length=255)
@@ -63,7 +58,7 @@ class Pokemon(models.Model):
     weight = models.IntegerField("Weight", default=0)
     order = models.IntegerField("Order", default=0)
     species = models.ForeignKey(Species, on_delete=models.CASCADE)
-    stats = models.ManyToManyField(Stat, related_name="pokemon_stats")
+    stats = models.ManyToManyField(Stat, through="PokemonStat", related_name="pokemon_stats")
     types = models.ManyToManyField(Type, related_name="pokemon_types")
     abilities = models.ManyToManyField(Ability, related_name="pokemon_abilities")
 
@@ -74,3 +69,15 @@ class Pokemon(models.Model):
         app_label = "pokemon"
         verbose_name = "Pokemon"
         verbose_name_plural = "Pokemons"
+
+
+class PokemonStat(models.Model):
+    pokemon = models.ForeignKey("Pokemon", on_delete=models.CASCADE)
+    stat = models.ForeignKey("Stat", on_delete=models.CASCADE)
+    base_stat = models.IntegerField(default=0)
+    effort = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ("pokemon", "stat")
+        verbose_name = "Pokemon Stat"
+        verbose_name_plural = "Pokemon Stats"

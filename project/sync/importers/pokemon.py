@@ -1,7 +1,6 @@
-from django.db import transaction
 from tqdm import tqdm
 
-from project.pokemon.models import Pokemon, Species, Type, Stat, Ability
+from project.pokemon.models import Pokemon, Species, Type, Stat, Ability, PokemonStat
 from project.sync.helpers import PokeApiHelper
 from project.sync.importers.base import BaseImporter
 from project.sync.utils import link_to_external_id
@@ -54,7 +53,21 @@ class PokemonImporter(BaseImporter):
 
             pokemon.types.set(types)
             pokemon.abilities.set(abilities)
-            pokemon.stats.set(stats)
+
+            for s in item.get("stats", []):
+                stat_id = link_to_external_id(s["stat"]["url"])
+                stat_obj = self.stats_map.get(stat_id)
+                if not stat_obj:
+                    continue
+
+                PokemonStat.objects.update_or_create(
+                    pokemon=pokemon,
+                    stat=stat_obj,
+                    defaults={
+                        "base_stat": s.get("base_stat", 0),
+                        "effort": s.get("effort", 0)
+                    }
+                )
 
     def map_item(self, item):
         # --- species ---
@@ -84,15 +97,6 @@ class PokemonImporter(BaseImporter):
                 return None
             abilities.append(ability_obj)
 
-        # --- stats ---
-        stats = []
-        for s in item.get("stats", []):
-            stat_id = link_to_external_id(s["stat"]["url"])
-            stat_obj = self.stats_map.get(stat_id)
-            if not stat_obj:
-                return None
-            stats.append(stat_obj)
-
         return {
             "external_id": item["id"],
             "defaults": {
@@ -100,11 +104,11 @@ class PokemonImporter(BaseImporter):
                 "height": item.get("height", 0),
                 "weight": item.get("weight", 0),
                 "base_experience": item.get("base_experience", 0),
-                "order": item.get("order", 0),
+                "order": 99999 if (order := item.get("order", 0)) < 0 else order,
                 "image": item.get("sprites", {}).get("front_default"),
                 "species": species,
                 "types": types,
                 "abilities": abilities,
-                "stats": stats,
+                "stats": item.get("stats", []),
             }
         }

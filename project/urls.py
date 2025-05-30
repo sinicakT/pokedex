@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from project.pokemon.views import PokemonListView, PokemonDetailView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('<int:pk>/', PokemonDetailView.as_view(), name='pokemon-detail'),
+    path("", PokemonListView.as_view(), name="pokemon-list"),
 ]
