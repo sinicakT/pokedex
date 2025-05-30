@@ -1,10 +1,12 @@
-from django.db.models import Q, F, FilteredRelation
-from django.db.models.functions import Coalesce
+from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView
 from project.pokemon.models import Pokemon, Type
 from project.pokemon.serializers import PokemonDetailSerializer
 
 
+@method_decorator(cache_page(600), name='get')
 class PokemonListView(ListView):
     model = Pokemon
     template_name = "pokemon/list.html"
@@ -39,6 +41,7 @@ class PokemonListView(ListView):
         return context
 
 
+@method_decorator(cache_page(60 * 60), name='get')
 class PokemonDetailView(DetailView):
     model = Pokemon
     template_name = 'pokemon/detail.html'

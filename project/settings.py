@@ -156,3 +156,10 @@ POKE_API = {
 BROKER_URL = CELERY_BROKER_URL = os.getenv(
     "CELERY_BROKER_URL", "redis://redis-app:6379/0"
 )
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis-app:6379/1",
+    },
+}
