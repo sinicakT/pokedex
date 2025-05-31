@@ -16,6 +16,43 @@
     {% endblock %}
 </div>
 {% block js_scripts %}
+    <script>
+        function toggleCompare(pokemonId) {
+            fetch(`/compare/${pokemonId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const isOnComparePage = window.location.pathname.startsWith("/compare");
+                    console.log(data.compare_list)
+                    if (isOnComparePage) {
+                        window.location.reload();
+                    } else if (data.compare_list.length > 1) {
+                        window.location.href = "/compare/";
+                    } else {
+                        alert("Compare updated.");
+                    }
+                });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 {% endblock %}
 </body>
 </html>

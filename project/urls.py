@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from project.pokemon.views import PokemonListView, PokemonDetailView
+from project.pokemon.views import PokemonListView, PokemonDetailView, PokemonCompareView, AddToCompareView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('<int:pk>/', PokemonDetailView.as_view(), name='pokemon-detail'),
     path("", PokemonListView.as_view(), name="pokemon-list"),
+    path("compare/", PokemonCompareView.as_view(), name="pokemon-compare"),
+    path("compare/<int:pokemon_id>/", AddToCompareView.as_view(), name="add-to-compare"),
 ]

@@ -1,5 +1,8 @@
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView
 from project.pokemon.models import Pokemon, Type
@@ -24,8 +27,7 @@ class PokemonListView(ListView):
 
         if type_filter := self.request.GET.get("type"):
             try:
-                type_ids = [int(t) for t in type_filter.split(",") if t]
-                queryset = queryset.filter(types__id__in=type_ids).distinct()
+                queryset = queryset.filter(types__id=type_filter)
             except ValueError:
                 pass
 
@@ -52,3 +54,24 @@ class PokemonDetailView(DetailView):
         serializer = PokemonDetailSerializer(self.object)
         context['pokemon'] = serializer.data
         return context
+
+class AddToCompareView(View):
+    def post(self, request, pokemon_id):
+        compare_list = request.session.get("compare_list", [])
+        pokemon_id = int(pokemon_id)
+
+        if pokemon_id in compare_list:
+            compare_list.remove(pokemon_id)
+        else:
+            if len(compare_list) >= 4:
+                compare_list = compare_list[-3:]
+            compare_list.append(pokemon_id)
+
+        request.session["compare_list"] = compare_list
+        return JsonResponse({"compare_list": compare_list})
+
+class PokemonCompareView(View):
+    def get(self, request):
+        id_list = request.session.get("compare_list", [])
+        pokemons = Pokemon.objects.filter(id__in=id_list).prefetch_related("types", "abilities")
+        return render(request, "pokemon/compare.html", {"pokemons": pokemons})
