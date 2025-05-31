@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from project.pokemon.views import PokemonListView, PokemonDetailView, PokemonCompareView, AddToCompareView
+from project.pokemon.views import PokemonListView, PokemonDetailView, PokemonCompareView, AddToCompareView, \
+    csrf_token_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,4 +26,5 @@ urlpatterns = [
     path("", PokemonListView.as_view(), name="pokemon-list"),
     path("compare/", PokemonCompareView.as_view(), name="pokemon-compare"),
     path("compare/<int:pokemon_id>/", AddToCompareView.as_view(), name="add-to-compare"),
+    path("csrf/", csrf_token_view),
 ]

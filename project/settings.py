@@ -36,6 +36,11 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://pokedex:8000",
+]
+
 # Application definition
 
 INSTALLED_APPS = [

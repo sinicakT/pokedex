@@ -4,10 +4,15 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import ListView, DetailView
 from project.pokemon.models import Pokemon, Type
 from project.pokemon.serializers import PokemonDetailSerializer
 
+
+@ensure_csrf_cookie
+def csrf_token_view(request):
+    return JsonResponse({"detail": "CSRF cookie set."})
 
 @method_decorator(cache_page(600), name='get')
 class PokemonListView(ListView):

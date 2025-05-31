@@ -1,11 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Pokédex{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
 </head>
 <body class="bg-gray-100 text-gray-900">
 <div class="container mx-auto py-8">
@@ -22,7 +23,8 @@
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken')
-                }
+                },
+                credentials: "include",
             })
                 .then(response => response.json())
                 .then(data => {
@@ -40,11 +42,11 @@
 
         function getCookie(name) {
             let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
+            if (document.cookie && document.cookie !== "") {
                 const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
                     }
@@ -52,6 +54,10 @@
             }
             return cookieValue;
         }
+
+        fetch("/csrf/", {
+            credentials: "include"
+        });
     </script>
 {% endblock %}
 </body>
